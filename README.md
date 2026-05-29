@@ -1,8 +1,6 @@
 # OpenCode Telegram Notification Plugin
 
-> **Fitur tambahan vs [original](https://github.com/Davasny/opencode-telegram-notification-plugin):** Notifikasi ketika kamu menggunakan tool **Question** (`tool.execute.before` hook), selain notifikasi session.idle bawaan.
-
-Get notified on Telegram when your OpenCode sessions complete.
+Get notified on Telegram when your OpenCode sessions complete **and when the agent is asking questions**.
 
 ## Installation
 
