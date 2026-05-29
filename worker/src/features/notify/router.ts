@@ -55,7 +55,8 @@ notify.post(
 
     const projectName = body.project || "Unknown project";
     const message =
-      body.message || buildNotificationMessage(projectName, body.sessionTitle, body.durationMs, body.type);
+      body.message ||
+      buildNotificationMessage(projectName, body.sessionTitle, body.durationMs, body.type);
 
     const success = await sendTelegramMessage(c.env.BOT_TOKEN, userData.chatId, message);
 
