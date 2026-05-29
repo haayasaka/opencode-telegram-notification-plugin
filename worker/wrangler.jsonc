@@ -7,7 +7,7 @@
 	"kv_namespaces": [
 		{
 			"binding": "USERS",
-			"id": "46cd9a37f6d74d96965314c1a7ed7cc6"
+			"id": "YOUR_KV_NAMESPACE_ID"
 		}
 	]
 	// BOT_TOKEN is set via: wrangler secret put BOT_TOKEN

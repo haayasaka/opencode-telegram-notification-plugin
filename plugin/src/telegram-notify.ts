@@ -24,7 +24,9 @@ export const TelegramNotify: Plugin = async ({ client, directory }) => {
     },
     "tool.execute.before": async (input, output) => {
       if (input.tool === "question") {
-        logger.debug("Question tool detected, sending notification", { sessionID: input.sessionID });
+        logger.debug("Question tool detected, sending notification", {
+          sessionID: input.sessionID,
+        });
         await sendQuestionNotification(client, logger, projectName, input.sessionID);
       }
     },
