@@ -8,21 +8,30 @@ import { notifyRequestSchema } from "./schemas";
 
 const notify = new Hono<{ Bindings: Env }>();
 
+function escapeMarkdown(text: string): string {
+  return text.replace(/[_*\[\]()~`>#+\-=|{}.!\\]/g, "\\$&");
+}
+
 function buildNotificationMessage(
   projectName: string,
   sessionTitle?: string,
   durationMs?: number,
+  type?: string,
 ): string {
   const lines: string[] = [];
 
-  lines.push(`📁 \`${projectName}\``);
+  if (type === "question") {
+    lines.push("💬 The agent has a question for you");
+  }
+
+  lines.push(`📁 ${escapeMarkdown(projectName)}`);
 
   if (sessionTitle) {
-    lines.push(`📋 \`${sessionTitle}\``);
+    lines.push(`📋 ${escapeMarkdown(sessionTitle)}`);
   }
 
   if (durationMs !== undefined) {
-    lines.push(`⏱️${formatDuration(durationMs)}`);
+    lines.push(`⏱️ ${formatDuration(durationMs)}`);
   }
 
   return lines.join("\n");
@@ -46,7 +55,7 @@ notify.post(
 
     const projectName = body.project || "Unknown project";
     const message =
-      body.message || buildNotificationMessage(projectName, body.sessionTitle, body.durationMs);
+      body.message || buildNotificationMessage(projectName, body.sessionTitle, body.durationMs, body.type);
 
     const success = await sendTelegramMessage(c.env.BOT_TOKEN, userData.chatId, message);
 

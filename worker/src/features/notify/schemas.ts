@@ -6,4 +6,5 @@ export const notifyRequestSchema = z.object({
   sessionTitle: z.string().optional(),
   durationMs: z.number().optional(),
   message: z.string().optional(),
+  type: z.string().optional(),
 });
