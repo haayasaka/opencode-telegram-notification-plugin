@@ -4,24 +4,12 @@ import type { OpencodeClient } from "../../lib/types";
 import { getSessionInfo } from "../session/utils/get-session-info";
 import type { NotifyPayload } from "./types";
 
-export async function sendNotification(
+async function postNotify(
   client: OpencodeClient,
   logger: Logger,
-  projectName: string,
-  sessionId: string,
+  payload: NotifyPayload,
 ): Promise<void> {
   try {
-    logger.debug("Session ID from event", { sessionId });
-
-    const sessionInfo = await getSessionInfo(client, logger, sessionId);
-
-    const payload: NotifyPayload = {
-      key: INSTALL_KEY,
-      project: projectName,
-      sessionTitle: sessionInfo?.title,
-      durationMs: sessionInfo?.durationMs,
-    };
-
     logger.debug("Sending payload", { payload });
 
     const response = await fetch(`${WORKER_URL}/notify`, {
@@ -42,4 +30,44 @@ export async function sendNotification(
     const errorStack = error instanceof Error ? error.stack : "";
     logger.error(`Error sending notification: ${errorMessage}`, { stack: errorStack });
   }
+}
+
+export async function sendNotification(
+  client: OpencodeClient,
+  logger: Logger,
+  projectName: string,
+  sessionId: string,
+): Promise<void> {
+  logger.debug("Session ID from event", { sessionId });
+
+  const sessionInfo = await getSessionInfo(client, logger, sessionId);
+
+  const payload: NotifyPayload = {
+    key: INSTALL_KEY,
+    project: projectName,
+    sessionTitle: sessionInfo?.title,
+    durationMs: sessionInfo?.durationMs,
+  };
+
+  await postNotify(client, logger, payload);
+}
+
+export async function sendQuestionNotification(
+  client: OpencodeClient,
+  logger: Logger,
+  projectName: string,
+  sessionId: string,
+): Promise<void> {
+  logger.debug("Question tool used in session", { sessionId });
+
+  const sessionInfo = await getSessionInfo(client, logger, sessionId);
+
+  const payload: NotifyPayload = {
+    key: INSTALL_KEY,
+    project: projectName,
+    sessionTitle: sessionInfo?.title,
+    type: "question",
+  };
+
+  await postNotify(client, logger, payload);
 }

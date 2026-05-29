@@ -50,16 +50,8 @@ async function getSessionInfo(client, logger, sessionId) {
 }
 
 // src/features/notify/service.ts
-async function sendNotification(client, logger, projectName, sessionId) {
+async function postNotify(client, logger, payload) {
   try {
-    logger.debug("Session ID from event", { sessionId });
-    const sessionInfo = await getSessionInfo(client, logger, sessionId);
-    const payload = {
-      key: INSTALL_KEY,
-      project: projectName,
-      sessionTitle: sessionInfo?.title,
-      durationMs: sessionInfo?.durationMs
-    };
     logger.debug("Sending payload", { payload });
     const response = await fetch(`${WORKER_URL}/notify`, {
       method: "POST",
@@ -78,6 +70,28 @@ async function sendNotification(client, logger, projectName, sessionId) {
     const errorStack = error instanceof Error ? error.stack : "";
     logger.error(`Error sending notification: ${errorMessage}`, { stack: errorStack });
   }
+}
+async function sendNotification(client, logger, projectName, sessionId) {
+  logger.debug("Session ID from event", { sessionId });
+  const sessionInfo = await getSessionInfo(client, logger, sessionId);
+  const payload = {
+    key: INSTALL_KEY,
+    project: projectName,
+    sessionTitle: sessionInfo?.title,
+    durationMs: sessionInfo?.durationMs
+  };
+  await postNotify(client, logger, payload);
+}
+async function sendQuestionNotification(client, logger, projectName, sessionId) {
+  logger.debug("Question tool used in session", { sessionId });
+  const sessionInfo = await getSessionInfo(client, logger, sessionId);
+  const payload = {
+    key: INSTALL_KEY,
+    project: projectName,
+    sessionTitle: sessionInfo?.title,
+    type: "question"
+  };
+  await postNotify(client, logger, payload);
 }
 
 // src/lib/logger.ts
@@ -124,6 +138,12 @@ var TelegramNotify = async ({ client, directory }) => {
     event: async ({ event }) => {
       if (event.type === "session.idle") {
         await sendNotification(client, logger, projectName, event.properties.sessionID);
+      }
+    },
+    "tool.execute.before": async (input, output) => {
+      if (input.tool === "question") {
+        logger.debug("Question tool detected, sending notification", { sessionID: input.sessionID });
+        await sendQuestionNotification(client, logger, projectName, input.sessionID);
       }
     }
   };

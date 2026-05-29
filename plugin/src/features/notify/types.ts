@@ -3,4 +3,5 @@ export interface NotifyPayload {
   project: string;
   sessionTitle?: string;
   durationMs?: number;
+  type?: string;
 }
