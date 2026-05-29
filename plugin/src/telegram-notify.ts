@@ -1,8 +1,21 @@
+import type { Event } from "@opencode-ai/sdk";
 import type { Plugin } from "@opencode-ai/plugin";
-import { sendNotification, sendQuestionNotification } from "./features/notify/service";
+import { sendNotification, sendPermissionNotification, sendQuestionNotification } from "./features/notify/service";
 import { isConfigured } from "./lib/config";
 import { createLogger } from "./lib/logger";
 import { extractProjectName } from "./lib/utils";
+
+// Local type for permission.asked event (avoids reliance on @opencode-ai/sdk/v2 subpath exports)
+interface PermissionAskedEvent {
+  id: string;
+  type: "permission.asked";
+  properties: {
+    sessionID: string;
+    [key: string]: unknown;
+  };
+}
+
+type ExtendedEvent = Event | PermissionAskedEvent;
 
 export const TelegramNotify: Plugin = async ({ client, directory }) => {
   const logger = createLogger(client);
@@ -18,8 +31,14 @@ export const TelegramNotify: Plugin = async ({ client, directory }) => {
 
   return {
     event: async ({ event }) => {
-      if (event.type === "session.idle") {
-        await sendNotification(client, logger, projectName, event.properties.sessionID);
+      const ev = event as ExtendedEvent;
+
+      if (ev.type === "session.idle") {
+        await sendNotification(client, logger, projectName, ev.properties.sessionID);
+      }
+
+      if (ev.type === "permission.asked") {
+        await sendPermissionNotification(client, logger, projectName, ev.properties.sessionID);
       }
     },
     "tool.execute.before": async (input, output) => {

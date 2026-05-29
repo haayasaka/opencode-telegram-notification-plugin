@@ -93,6 +93,17 @@ async function sendQuestionNotification(client, logger, projectName, sessionId) 
   };
   await postNotify(client, logger, payload);
 }
+async function sendPermissionNotification(client, logger, projectName, sessionId) {
+  logger.debug("Permission replied in session", { sessionId });
+  const sessionInfo = await getSessionInfo(client, logger, sessionId);
+  const payload = {
+    key: INSTALL_KEY,
+    project: projectName,
+    sessionTitle: sessionInfo?.title,
+    type: "permission"
+  };
+  await postNotify(client, logger, payload);
+}
 
 // src/lib/logger.ts
 function log(client, level, message, extra) {
@@ -136,8 +147,12 @@ var TelegramNotify = async ({ client, directory }) => {
   const projectName = extractProjectName(directory);
   return {
     event: async ({ event }) => {
-      if (event.type === "session.idle") {
-        await sendNotification(client, logger, projectName, event.properties.sessionID);
+      const ev = event;
+      if (ev.type === "session.idle") {
+        await sendNotification(client, logger, projectName, ev.properties.sessionID);
+      }
+      if (ev.type === "permission.asked") {
+        await sendPermissionNotification(client, logger, projectName, ev.properties.sessionID);
       }
     },
     "tool.execute.before": async (input, output) => {

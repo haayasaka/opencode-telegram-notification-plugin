@@ -1,6 +1,6 @@
 # OpenCode Telegram Notification Plugin
 
-Get notified on Telegram when your OpenCode sessions complete **and when the agent is asking questions**.
+(v1.1.0) Get notified on Telegram when your OpenCode sessions complete **, when the agent is asking questions, and when the agent is asking for permissions**.
 
 ## Installation
 

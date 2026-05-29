@@ -8,10 +8,6 @@ import { notifyRequestSchema } from "./schemas";
 
 const notify = new Hono<{ Bindings: Env }>();
 
-function escapeMarkdown(text: string): string {
-  return text.replace(/[_*\[\]()~`>#+\-=|{}.!\\]/g, "\\$&");
-}
-
 function buildNotificationMessage(
   projectName: string,
   sessionTitle?: string,
@@ -20,18 +16,22 @@ function buildNotificationMessage(
 ): string {
   const lines: string[] = [];
 
+  lines.push(`📁 \`${projectName}\``);
+
+  if (sessionTitle) {
+    lines.push(`📋 \`${sessionTitle}\``);
+  }
+
   if (type === "question") {
     lines.push("💬 The agent has a question for you");
   }
 
-  lines.push(`📁 ${escapeMarkdown(projectName)}`);
-
-  if (sessionTitle) {
-    lines.push(`📋 ${escapeMarkdown(sessionTitle)}`);
+  if (type === "permission") {
+    lines.push("⚠️ The agent is asking for a permission");
   }
 
   if (durationMs !== undefined) {
-    lines.push(`⏱️ ${formatDuration(durationMs)}`);
+    lines.push(`⏱️${formatDuration(durationMs)}`);
   }
 
   return lines.join("\n");

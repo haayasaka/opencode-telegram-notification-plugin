@@ -71,3 +71,23 @@ export async function sendQuestionNotification(
 
   await postNotify(client, logger, payload);
 }
+
+export async function sendPermissionNotification(
+  client: OpencodeClient,
+  logger: Logger,
+  projectName: string,
+  sessionId: string,
+): Promise<void> {
+  logger.debug("Permission replied in session", { sessionId });
+
+  const sessionInfo = await getSessionInfo(client, logger, sessionId);
+
+  const payload: NotifyPayload = {
+    key: INSTALL_KEY,
+    project: projectName,
+    sessionTitle: sessionInfo?.title,
+    type: "permission",
+  };
+
+  await postNotify(client, logger, payload);
+}

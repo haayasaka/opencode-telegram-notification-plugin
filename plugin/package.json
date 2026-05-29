@@ -1,6 +1,6 @@
 {
   "name": "opencode-telegram-notify-plugin",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "main": "dist/telegram-notify.js",
   "scripts": {
@@ -9,8 +9,8 @@
     "dev": "tsup --watch"
   },
   "devDependencies": {
-    "@opencode-ai/plugin": "1.0.203",
-    "@opencode-ai/sdk": "1.0.203",
+    "@opencode-ai/plugin": "^1.15.12",
+    "@opencode-ai/sdk": "^1.15.12",
     "tsup": "8.5.0",
     "typescript": "5.8.3"
   }
